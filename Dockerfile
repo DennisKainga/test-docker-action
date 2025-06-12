@@ -9,13 +9,11 @@ ARG PHP_EXTS_DEB_HOSTS="zip libzip-dev libfreetype6-dev libjpeg62-turbo-dev libp
 # ========================================
 FROM composer:lts AS build
 COPY . /app/
-RUN mkdir storage && \
-    mkdir storage/framework && \
-    mkdir storage/framework/sessions && \
-    mkdir storage/framework/views && \
-    mkdir storage/framework/cache && \
-    mkdir storage/app && \
-    mkdir storage/app/public && \
+
+RUN mkdir -p storage/framework/sessions \
+    storage/framework/views \
+    storage/framework/cache \
+    storage/app/public && \
     composer update --prefer-dist --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs
 
 
