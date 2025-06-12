@@ -60,11 +60,7 @@ USER www-data
 COPY --from=build --chown=www-data:www-data /app /opt/apps/www
 
 RUN mkdir -p /opt/apps/www/storage/logs && \
-    chmod -R 777 /opt/apps/www/storage && \
-    php artisan telescope:publish && \
-    php artisan horizon:publish
-
-
+    chmod -R 777 /opt/apps/www/storage
 
 # ========================================
 # For php artisan cli etc
