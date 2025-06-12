@@ -39,6 +39,16 @@ jobs:
           ls storage/framework
           composer install
 
+      - name: Setup Node JS
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies and build frontend
+        run: |
+          npm install
+          npm run build
+          
       - name: Run tests
         run: |
           cp .env-testing .env.testing
