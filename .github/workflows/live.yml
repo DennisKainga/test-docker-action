@@ -38,6 +38,9 @@ jobs:
           mkdir -p storage/framework/cache
           ls storage/framework
           composer install
+
+      - name: Run larastan checks level 5
+        run: composer stan
       # Set up node js
       - name: Setup Node JS
         uses: actions/setup-node@v4
