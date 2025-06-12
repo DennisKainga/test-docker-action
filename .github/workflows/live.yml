@@ -40,7 +40,7 @@ jobs:
           composer install
 
       - name: RUN STATIC ANALYSIS
-        run: composer test
+        run: composer stan
       # Set up node js
       - name: Setup Node JS
         uses: actions/setup-node@v4
