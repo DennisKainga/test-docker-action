@@ -38,9 +38,9 @@ jobs:
           mkdir -p storage/framework/cache
           ls storage/framework
           composer install
-
+      # Set up node js
       - name: Setup Node JS
-      - uses: actions/setup-node@v4
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
