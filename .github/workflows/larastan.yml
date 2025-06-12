@@ -2,6 +2,8 @@
 name: Larastan
 
 on: [push, pull_request]
+  branches:
+    - 'main'
 
 jobs:
   larastan:
