@@ -1,0 +1,68 @@
+name: Deploy to Live
+
+on:
+  push:
+    branches:
+      - 'main'
+
+env:
+  SEMANTIC_VERSION: v.api.${{ github.ref_name }}.${{ github.run_number }}
+  COMMIT_LINK: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+
+      # https://github.com/orgs/community/discussions/26686#discussioncomment-3396593
+      - name: Get tag name
+        run: |
+          echo "Tag name from github.ref_name: ${{  github.ref_name }} run_number, ${{ github.run_number }}"
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+
+      - name: Test setup
+        run: |
+          # docker system prune -af
+          docker restart mariadb || docker run --name mariadb -p 3360:3306 --tmpfs /var/lib/mysql:rw -e MYSQL_ROOT_PASSWORD=test_pass -e MYSQL_USER=test_user -e MYSQL_PASSWORD=test_pass -e MYSQL_DATABASE=test_db -d mariadb
+          mkdir -p storage
+          mkdir -p storage/framework
+          mkdir -p storage/framework/sessions
+          mkdir -p storage/framework/views
+          mkdir -p storage/framework/cache
+          ls storage/framework
+          composer install
+
+      - name: Run tests
+        run: |
+          cp .env-testing .env.testing
+          php artisan migrate:refresh --env=testing && php artisan migrate:rollback --env=testing
+          php artisan test --parallel
+
+      - name: Docker Log In
+        run: |
+          docker logout
+          echo '${{ secrets.DOCKER_PASSWORD }}' | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+
+      - name: Build Docker image
+        run: |
+          make docker-build VERSION=${{ env.SEMANTIC_VERSION }}
+
+      - name: Push Docker image
+        run: |
+          make docker-push VERSION=${{ env.SEMANTIC_VERSION }}
+
+      # This is for the chaos resolver, we need a second container to fall back to
+      - name: Build and push alt docker image
+        run: |
+          make docker-build VERSION=${{ env.SEMANTIC_VERSION }}.alt
+          make docker-push VERSION=${{ env.SEMANTIC_VERSION }}.alt
+
+      - name: Docker Log Out
+        run: docker logout
