@@ -25,7 +25,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.3'
+          php-version: '8.4'
 
       - name: Test setup
         run: |
@@ -40,15 +40,15 @@ jobs:
           composer install
 
       - name: Setup Node JS
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '20'
 
       - name: Install dependencies and build frontend
         run: |
           npm install
           npm run build
-          
+
       - name: Run tests
         run: |
           cp .env-testing .env.testing
